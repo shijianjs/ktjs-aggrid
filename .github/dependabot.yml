@@ -34,7 +34,8 @@ updates:
       # One PR per upstream ecosystem. Add a pattern per scope/package family as modules grow.
       upstream:
         patterns:
-          - "@vaadin/button"
+          - "ag-grid-community"
+          - "@ag-grid-community/*"
 
   - package-ecosystem: github-actions
     directory: "/"

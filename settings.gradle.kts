@@ -39,11 +39,12 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "ktjs-wrapper-template"
+rootProject.name = "ktjs-aggrid"
 
-// One Gradle project per published wrapper module. The sample module wraps a single npm package;
-// a derived project adds one include per package (or per group of packages that release together).
-include(":ktjs-wrapper-template-core")
+// One Gradle project per published wrapper module. `ktjs-aggrid` wraps the two npm packages AG Grid
+// ships for its free tier (`ag-grid-community` and `@ag-grid-community/locale`): they carry the same
+// upstream version and release together, so they share a Gradle module and one Maven version.
+include(":ktjs-aggrid")
 
 // The demo page, published under /demo/ of the Pages site. Not a published module.
 include(":demo")
