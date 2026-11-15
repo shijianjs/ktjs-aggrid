@@ -25,10 +25,17 @@
 
 ### 当前待办
 
-- [ ] `./gradlew pagesSite` 全量验证（docs + demo + Dokka 组装到 `build/pages`）
-- [ ] 用 `gh` 把仓库 Pages 的 source 切到 GitHub Actions，并 `gh workflow run pages.yml` 跑通首次部署
+- [x] `./gradlew pagesSite` 全量验证（docs + demo + Dokka 组装到 `build/pages`）
+- [x] 用 `gh` 把仓库 Pages 的 source 切到 GitHub Actions，并 `gh workflow run pages.yml` 跑通首次部署
 - [ ] 54 处 `intersection` / `utility` 逐条核对，能收窄的收窄，不能的移到「明确不做」
 - [ ] Maven Central 首次发布（`release.yml` + `maven-central-publishing` 中枢登记）
+
+### 线上地址
+
+- 文档站：https://shijianjs.github.io/ktjs-aggrid/ （中文：`/zh-Hans/`）
+- demo：https://shijianjs.github.io/ktjs-aggrid/demo/
+- API：https://shijianjs.github.io/ktjs-aggrid/api/
+- 更新站点：`gh workflow run pages.yml`（`workflow_dispatch`，不随 push 自动部署）
 
 ### 注意事项
 

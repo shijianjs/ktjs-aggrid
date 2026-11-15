@@ -85,7 +85,7 @@
 | 封装模块浏览器测试 | 已完成 | `./gradlew :ktjs-aggrid:jsBrowserTest` 5/5 |
 | demo 页（AG Grid + 中英切换 + 主题切换） | 已完成 | `./gradlew :demo:e2eTest` 6/6 |
 | 文档站（英文 + 中文，均含 4 篇正文与首页） | 已完成 | `./gradlew :docs:docusaurusBuild` 两套 locale 均 SUCCESS |
-| Pages 组装（docs 根 / demo / Dokka） | 待完成 | `pagesSite` 尚未整体跑通，Dokka 在本仓库从未执行 |
-| GitHub Pages 开启与首次部署 | 待完成 | Settings → Pages 的 Source 还未切到 GitHub Actions，`pages.yml` 未 dispatch |
+| Pages 组装（docs 根 / demo / Dokka） | 已完成 | `./gradlew pagesSite` 本地通过，`build/pages` 下文档在根、`demo/`、`api/` 齐备 |
+| GitHub Pages 开启与首次部署 | 已完成 | Pages source = GitHub Actions（`gh api --method POST .../pages -f build_type=workflow`）；`gh workflow run pages.yml` 首次部署成功，`/`、`/zh-Hans/`、`/demo/`、`/api/` 均返回 200 |
 | 中文/英文 README、AGENTS.md、TODO.md | 已完成 | 本次提交 |
 | Maven Central 首次发布 | 待完成 | `release.yml` 未跑，`maven-central-publishing` 中枢未登记本项目 |
