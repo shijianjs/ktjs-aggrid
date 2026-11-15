@@ -7,7 +7,7 @@ plugins {
 // dependency, hence the explicit wiring below.
 val brandAssets = tasks.register<Copy>("brandAssets") {
     from(rootProject.file("docs/src/jsMain/resources/static/img")) {
-        // Keep the same `img/` layout the site uses, so both pages reference `img/<logo>.png`.
+        // Keep the same `img/` layout the site uses, so both pages reference `img/logo.svg`.
         into("img")
     }
     into(layout.buildDirectory.dir("generated/brand"))
@@ -20,6 +20,11 @@ kotlin {
         // The demo is a standalone page, so the JS target needs an executable webpack bundle.
         binaries.executable()
         browser()
+
+        compilerOptions {
+            // The wrapper's generated declarations use `kotlin.js.JsAny` for upstream `unknown`.
+            optIn.add("kotlin.js.ExperimentalWasmJsInterop")
+        }
     }
 
     // The JVM target carries only the Playwright end-to-end suite in `src/jvmTest`; the demo itself
