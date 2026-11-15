@@ -1,47 +1,51 @@
 ---
-title: ktjs-wrapper-template
-description: 一个立刻能跑的 Kotlin/JS wrapper 项目
+title: ktjs-aggrid
+description: AG Grid Community 的 Kotlin/JS 绑定，由上游类型定义生成
 hide_table_of_contents: true
 ---
 
-import logo from '@site/static/img/ktjs-wrapper-template-logo.png';
+import logo from '@site/static/img/logo.svg';
 
 {/* `<ktjs-…>` 分区来自 ktjs-docusaurus 的工具箱：Gradle 插件把它的 bundle 放到 `static/ktjs-client/`，
     `ClientModule.kt` 在页面 hydrate 之后加载它。`href` 写成相对路径，两种 locale 前缀下都能用；
     `logo` 用 import 取，这样 URL 会带上本站实际的 `baseUrl`。 */}
 
-<ktjs-hero logo-src={logo} title="ktjs-wrapper-template" tagline="一个可以照抄的 Kotlin/JS wrapper 项目">
+<ktjs-hero logo-src={logo} title="ktjs-aggrid" tagline="AG Grid 社区版，为 Kotlin/JS 提供类型">
 
-<ktjs-action kind="primary" href="intro">开始阅读</ktjs-action>
+<ktjs-action kind="primary" href="intro">开始使用</ktjs-action>
 
-<ktjs-action kind="secondary" href="https://github.com/shijianjs/ktjs-wrapper-template" icon="simple-icons:github">GitHub</ktjs-action>
+<ktjs-action kind="secondary" href="https://shijianjs.github.io/ktjs-aggrid/demo/">打开示例</ktjs-action>
+
+<ktjs-action kind="secondary" href="https://github.com/shijianjs/ktjs-aggrid" icon="simple-icons:github">GitHub</ktjs-action>
 
 </ktjs-hero>
 
-<ktjs-features section-title="为什么从这里开始" tinted>
+<ktjs-features section-title="你会得到什么" tinted>
 
-<ktjs-feature icon="lucide:play" title="拿来就能跑">克隆下来就是一个能构建、能测试、能部署的项目——第一次 `./gradlew build` 之前没有任何占位符要填。</ktjs-feature>
+<ktjs-feature icon="lucide:table" title="完整的社区版 API">从上游 `main.d.ts` 可达的 1882 个声明——网格选项、列定义、GridApi、事件、渲染器、筛选器、Theming API 以及 locale 文案表。</ktjs-feature>
 
-<ktjs-feature icon="lucide:package" title="一个包一个模块">一个 wrapper 模块把一个 npm 包映射成一个 Kotlin 包。加第二个包就是复制一个目录，不用重新设计结构。</ktjs-feature>
+<ktjs-feature icon="lucide:shield-check" title="编译器检查">每个选项、回调和字面量都是 `external` 声明，属性拼错或字符串联合选错分支，会让 `./gradlew build` 失败，而不是在浏览器里失败。</ktjs-feature>
 
-<ktjs-feature icon="lucide:shield-check" title="类型而不是 dynamic">上游 `.d.ts` 写成 `external` 声明，编译期就能查；公开面用 `kotlin-browser` 的 `web.*` 类型，能和其他 wrapper 组合。</ktjs-feature>
+<ktjs-feature icon="lucide:wrench" title="生成而非抄写">声明由发布的 `.d.ts` 发射而来；升级 AG Grid 只需改一个 npm 版本号再重跑生成器。</ktjs-feature>
 
-<ktjs-feature icon="lucide:flask-conical" title="在浏览器里测">模块的测试跑在 Chromium 里、打的是真实自定义元素，demo 还有自己的 Playwright 套件，两者都接进了 CI。</ktjs-feature>
+<ktjs-feature icon="lucide:scale" title="只做开源部分">`ag-grid-community` 与 `@ag-grid-community/locale`，都是 MIT。商业授权的 Enterprise 包一个都没有打桩、引用或依赖。</ktjs-feature>
 
-<ktjs-feature icon="lucide:book-open" title="文档也是 Kotlin">本站就是由 ktjs-docusaurus 构建的 Kotlin/JS 模块：类型化的配置与侧边栏、Markdown 页面、中英双语。</ktjs-feature>
+<ktjs-feature icon="lucide:languages" title="双语来自数据">`AG_GRID_LOCALE_EN_US` 与 `AG_GRID_LOCALE_ZH_CN` 就是普通值，切换语言等于赋一个选项——示例页正是这么做的。</ktjs-feature>
 
-<ktjs-feature icon="lucide:rocket" title="Pages 与发布已接好">`pagesSite` 组装文档、demo 与 API 文档；`release.yml` 负责签名并经由 Maven Central hub 发布模块。</ktjs-feature>
+<ktjs-feature icon="lucide:flask-conical" title="用真实表格验证">封装的浏览器测试在 Chromium 里注册社区模块并创建表格；示例页另有自己的 Playwright 套件。</ktjs-feature>
 
 </ktjs-features>
 
 <ktjs-next-steps section-title="接下来">
 
-<ktjs-step href="intro" title="简介">仓库里有什么，为什么不用任何初始化就能用。</ktjs-step>
+<ktjs-step href="intro" title="简介">声明是怎么产出的，仓库里都有什么。</ktjs-step>
 
-<ktjs-step href="guide/getting-started" title="快速开始">环境要求、构建任务与两个开发服务器。</ktjs-step>
+<ktjs-step href="guide/getting-started" title="快速开始">环境要求、构建任务、开发服务器与重新生成声明。</ktjs-step>
 
-<ktjs-step href="guide/deriving-a-project" title="派生新项目">把它改成你自己的 wrapper 的改名清单。</ktjs-step>
+<ktjs-step href="guide/using-the-wrapper" title="使用封装">注册模块、选项、GridApi、本地化文案与主题。</ktjs-step>
 
-<ktjs-step href="https://shijianjs.github.io/ktjs-wrapper-template/api/" title="API 文档">发布模块的 Dokka 产物。</ktjs-step>
+<ktjs-step href="guide/api-coverage" title="API 覆盖">402 处退化，以及封装比上游更宽的地方。</ktjs-step>
+
+<ktjs-step href="https://shijianjs.github.io/ktjs-aggrid/api/" title="API 文档">已发布模块的 Dokka 输出。</ktjs-step>
 
 </ktjs-next-steps>

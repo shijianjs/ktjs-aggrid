@@ -17,17 +17,21 @@
 
 ## 项目概况与模块结构
 
-`ktjs-wrapper-template` 为 [`@vaadin/button`](https://www.npmjs.com/package/@vaadin/button) 提供 Kotlin/JS
-wrapper。**本仓库自己就是模板，也是一个能立刻跑的项目**：没有占位符，没有初始化脚本，复制改名即可用
-（`git clone` / GitHub 的 Use this template）。`README.md` 与站点的「派生新项目」页是改名清单。
+`ktjs-aggrid` 为 [`ag-grid-community`](https://www.npmjs.com/package/ag-grid-community) 36.3.0 提供
+Kotlin/JS wrapper，同时覆盖 `@ag-grid-community/locale`（同一个版本锚）。**只做开源免费部分**：`ag-grid-community`
+与 locale 包都是 MIT；`ag-grid-enterprise`、`ag-grid-charts`、`@ag-grid-enterprise/*` 是商业授权，不声明、
+不引用、也不打桩。AG Charts 的类型（`AgChart*`、`AgSparklineOptions`）属于另一套收费产品，同样排除。
+仓库由 [`shijianjs/ktjs-wrapper-template`](https://github.com/shijianjs/ktjs-wrapper-template) 派生，通用约定
+沿用模板。
 
-- `ktjs-wrapper-template-core`：发布模块，也是示例模块（一个 npm 包、一个 Gradle 模块、一个 Kotlin 包）。
-  `version = {上游 npm 版本}-kt.{修订号}`。
-- `demo`：演示页，发布在 Pages 的 `/demo/`，不发布到 Maven、也不进入 Dokka。
+- `ktjs-aggrid`：发布模块（一个上游生态、一个 Gradle 模块、一个 Kotlin 包）。
+  `version = {上游 npm 版本}-kt.{修订号}`。**声明是生成的**，见下面「AG Grid 生成器」。
+- `demo`：演示页（AG Grid 表格 + 中英切换 + 主题切换），发布在 Pages 的 `/demo/`，不发布到 Maven、
+  也不进入 Dokka。
 - `docs`：文档站，也是 Pages 的主体。它同样是 Kotlin/JS 模块——站点配置与侧边栏是 Kotlin、页面是
   Markdown，由 [ktjs-docusaurus](https://github.com/shijianjs/ktjs-docusaurus) 的 Gradle 插件组装并调用
   Docusaurus CLI。`pagesSite` 把它放在 Pages **根目录**，demo 在 `/demo/`、API 在 `/api/`：`baseUrl`
-  （`/ktjs-wrapper-template/`）和导航里那两个跳转都由 `Config.kt` 顶部的常量推出来，改布局要一起改。
+  （`/ktjs-aggrid/`）和导航里那两个跳转都由 `Config.kt` 顶部的常量推出来，改布局要一起改。
   不发布、也不进 Dokka。版本在 `gradle.properties`：`ktjs-docusaurus.version` 是 wrapper klib 的，
   `ktjs-docusaurus-gradle-plugin.version` 是插件的，`ktjs-docusaurus-kit.version` 是工具箱的（那个项目每个
   模块各有 `-kt.N` 修订号）；写 SNAPSHOT 时从 `mavenLocal` 解析。首页的 `<ktjs-hero>` / `<ktjs-features>` /
@@ -35,15 +39,51 @@ wrapper。**本仓库自己就是模板，也是一个能立刻跑的项目**：
   `ktjs-client/ktjs-docusaurus-kit-browser.js`，`docs/build.gradle.kts` 用 `extractKitBundle` 从 klib
   解出来交给插件放到 `static/ktjs-client/`，再由 `ClientModule.kt` 在 hydrate 之后按 locale 的
   `baseUrl` 加载。Node 会读配置文件，所以这个 bundle 绝不能进 `docs` 的 Kotlin 依赖图。
-  Logo 只有一份（`docs/src/jsMain/resources/static/img/`），demo 用 `brandAssets` 任务拷进自己的资源。
+  Logo 只有一份（`docs/src/jsMain/resources/static/img/logo.svg`），demo 用 `brandAssets` 任务拷进自己的
+  资源；三处引用它的地方是 `Config.kt`、`demo/src/jsMain/resources/index.html` 与
+  `demo/src/jsMain/kotlin/demo/Main.kt`。
 
 Kotlin 包名统一以账号的 GitHub Pages 域名倒写为前缀：`io.github.<owner>.ktjs.<name>`。不要用裸根包
 （`vaadin`、`echarts`、`iconify` 之类），否则项目间以及与其他库容易在同一 classpath 上撞包。新增模块时
-沿用该前缀，再按 npm 包加子包（如 `io.github.shijianjs.ktjs.vaadin.combobox`）。
+沿用该前缀，再按 npm 包加子包（如 `io.github.shijianjs.ktjs.vaadin.combobox`）。本仓库只有一个包
+`io.github.shijianjs.ktjs.aggrid`，上游 npm 生态里的 `ag-grid-community` 与 locale 包合并在这一个包里。
 
 按「上游发版节奏」而不是「npm 包数量」划分子模块：上游版本号相同、总是一起发版的包放在同一个 Gradle
 模块里，避免每个包都产生一个 Maven 版本和一次 Central 发布。终端应用打包时本来就会摇树，模块内多出的
-声明不会进入最终产物。
+声明不会进入最终产物。AG Grid 的三个 tarball（`ag-grid-community`、`ag-stack`、`@ag-grid-community/locale`）
+同版本一起发版，因此只在 `ktjs-aggrid` 一个模块里声明。
+
+### AG Grid 生成器
+
+AG Grid 的公开面是 774 个 `.d.ts`（一个 `main.d.ts` 往外导出 1405 个名字），手写不可能保持同步，所以
+`ktjs-aggrid/src/jsMain/kotlin/io/github/shijianjs/ktjs/aggrid/` 下 462 个文件全部由脚本生成：
+
+- `scripts/generate-api.py`：解析 `.d.ts` → 公开名闭包 → `--emit`（输出 Kotlin）/ `--report`（写
+  `docs/development/api-surface-report.md`）。可达声明 1882 个（interface 1040 / alias 487 / const 178 /
+  class 162 / function 11 / enum 4）。
+- `scripts/ktjs_emitter.py`：声明渲染器（类型、联合、字面量、静态成员、`@JsModule` 导入）。
+- `scripts/regenerate.ps1`：一条命令跑完两步。它读**仓库根**的 `build/js/node_modules`（不是模块目录），
+  版本号取自 `ag-grid-community/package.json`；缺文件时提示先跑
+  `./gradlew :ktjs-aggrid:kotlinNpmInstall`。它会先删掉上次发射的 `.kt`，所以上游删除的声明不会残留。
+
+**改生成器而不是改生成物**：生成文件重新生成即被覆盖。改动顺序固定为「改脚本 → `regenerate.ps1` →
+`compileKotlinJs` → `detekt` → 浏览器测试」，编译错误一律回到 emitter 里解。
+
+踩过并已修的三处硬 bug，再动生成器时注意：
+
+1. 交集类型 `Base & { … }` 不能只抄对象字面量成员（丢掉基接口成员），要走 `intersection_body()`：
+   继承基接口、只声明新增成员、冲突成员用 `@JsName` + `typedXxx`。
+2. 闭包必须跟随 `heritage`（上游继承存的是原始字符串，不在成员的 `recursive_types` 里），否则
+   `GridApi` 会缺 `destroy()` / `getGridOption()` / `setGridOption()`（这些声明在内部基接口
+   `_CoreGridApi` 上）。
+3. `resolve("_CoreGridApi<TData>")` 这类带泛型实参的名字要先 `split("<")` 再查，否则查不到。
+
+已验证的 ESM 形态（不要再质疑）：`@file:JsModule` + 顶层 `external val`/`external fun` + `@JsName` →
+**具名导入**；`@file:JsModule` + `external object` → 命名空间导入。模板 `AGENTS.md` 说的「顶层 external val
+会生成 default import」在本项目不成立；但**不要**据此去改模板的通用描述，那是 webpack 版本相关的经验。
+
+统计口径与退化清单见 `docs/development/`：`api-surface-report.md` 由生成器写（勿手改），
+`coverage.md` 记完成判据，`technical-decisions.md` 记建模决策。
 
 ### 上游 API 建模约定
 
@@ -71,6 +111,17 @@ wrapper 的目标是让上游 npm 包暴露的公开 API 在 Kotlin/JS 侧都能
   删除带标记的旧文件；没有 manifest、只能手写的包在脚本里列成专门集合，重跑时不覆盖。
 - 修改生成器后重新生成并跑浏览器测试；升级上游版本先刷新 npm 依赖（如 `./gradlew kotlinNpmInstall`），
   让 manifest 更新后再生成。
+
+本仓库已经落地的、与上面通用描述不同的三条（AG Grid 专属，改 emitter 时按这个来）：
+
+- **静态成员不能用 private 接口**：上游静态成员是 `<Class>Statics`（`external interface`，public）+ 一个
+  `@JsName("<Class>") external val <camel>Statics`，因为 internal/private 类型不能出现在公开签名里
+  （`RegisterModules` 之类会直接编译失败）。调用点写 `moduleRegistryStatics.registerModules(…)`。
+- **泛型参数整体丢弃**：AG Grid 的 `TData`/`TValue` 不保留（`ColDef<TData, TValue>` → `ColDef`），所以
+  `GridOptions.columnDefs` 是 `Array<JsAny>`、泛型回调收 `JsAny`、`getGridOption` 返回 `JsAny`。这是刻意
+  的取舍，不要为了「更精确」给某些类型补泛型。
+- **联合里只要有一支是 `any` 或解析不出来，整个联合收敛为 `JsAny`**（如 `RowSelectionOptions`），不要包
+  一层不透明接口假装分支可区分；上游按泛型算出来的字段名字面量联合（`ColDefField` 等）收敛为 `String`。
 
 ### 类型映射与 `dynamic`
 
@@ -119,13 +170,13 @@ wrapper 的目标是让上游 npm 包暴露的公开 API 在 Kotlin/JS 侧都能
 
 ### 新增模块
 
-模板没有骨架目录，`ktjs-wrapper-template-core` 就是骨架：复制整个模块目录，再把它改成新的名字与包。
+模板没有骨架目录，`ktjs-aggrid` 就是骨架：复制整个模块目录，再把它改成新的名字与包。
 
-1. 复制 `ktjs-wrapper-template-core` 为 `ktjs-wrapper-template-<name>`，改 `build.gradle.kts` 里的
+1. 复制 `ktjs-aggrid` 为 `ktjs-aggrid-<name>`，改 `build.gradle.kts` 里的
    `npmVersions.getValue("<包名>")` 与 `description`，以及 `src/*/kotlin` 下的包路径与 `package` 行。
-2. `settings.gradle.kts` 加 `include(":ktjs-wrapper-template-<name>")`。
-3. `package.json` 的 `dependencies` 加 npm 包版本；`wrapper-revisions.properties` 加 `ktjs-wrapper-template-<name>=1`。
-4. `demo/build.gradle.kts` 的 `jsMain.dependencies` 加 `implementation(project(":ktjs-wrapper-template-<name>"))`，
+2. `settings.gradle.kts` 加 `include(":ktjs-aggrid-<name>")`。
+3. `package.json` 的 `dependencies` 加 npm 包版本；`wrapper-revisions.properties` 加 `ktjs-aggrid-<name>=1`。
+4. `demo/build.gradle.kts` 的 `jsMain.dependencies` 加 `implementation(project(":ktjs-aggrid-<name>"))`，
    并在 demo 里实际使用它。
 5. 同步检查 Dependabot 分组（`.github/dependabot.yml` 的 `upstream` patterns）、README 模块表与站点页面；
    Dokka 按 `publishedPrefix` 自动收集，无需改。
@@ -444,7 +495,7 @@ registry 是全局的，将来真要 `npm publish` 某个包时得显式 `--regi
   不该卡住合并。
 - `.github/dependabot.yml` 覆盖 `gradle`、`npm`（根目录 `package.json`）和 `github-actions` 三个生态。
   npm 版本由 Dependabot 改 `package.json`，Gradle 自动读取，不再手工改 `npm(...)`。`upstream` 分组里列
-  着本仓库包装的包（目前是 `@vaadin/button`），派生项目按自己的包替换。
+  着本仓库包装的包（目前是 `ag-grid-community`），派生项目按自己的包替换。
 - Gradle wrapper 固定在 `9.4.1`，并在 Dependabot 里忽略 `gradle-wrapper`：IntelliJ IDEA 2026.2.3
   同步 Gradle 9.8.x 项目时会报 `ExternalSystemPartialResolutionException`（消息为空），回退到 9.4.1
   即恢复正常。等 IDEA 修复后再删除这条 ignore 并升级。
@@ -482,7 +533,7 @@ group 固定为 `io.github.shijianjs`。`subprojects` 的 group 必须单独设�
 
 ```bash
 gh workflow run release.yml -f release=release-1 \
-  -f modules=ktjs-wrapper-template-core
+  -f modules=ktjs-aggrid
 ```
 
 - `release`：`release-<数字>`，tag 由工作流创建；工作流不会移动已有 tag。
@@ -516,10 +567,10 @@ gh workflow run release.yml -f release=release-1 \
 ```bash
 ORG_GRADLE_PROJECT_signingInMemoryKey="$(< ~/central-signing-key.txt)" \
 ORG_GRADLE_PROJECT_signingInMemoryKeyPassword=... \
-./gradlew :ktjs-wrapper-template-core:publishAllPublicationsToHubStagingRepository
+./gradlew :ktjs-aggrid:publishAllPublicationsToHubStagingRepository
 
-python3 scripts/hub-release.py --project shijianjs/ktjs-wrapper-template --release release-1 \
-  --module ktjs-wrapper-template-core=<version> --repository . \
+python3 scripts/hub-release.py --project shijianjs/ktjs-aggrid --release release-1 \
+  --module ktjs-aggrid=<version> --repository . \
   --archives build/hub-release/archives --registrations build/hub-release
 ```
 
@@ -547,7 +598,7 @@ klibs.io 从 Maven Central 与 GitHub 自动抓取，无需提交元数据文件
 ## 演示页面与 GitHub Pages
 
 - `demo` 只消费公共 API，不发布、也不进入 Dokka。根 `build.gradle.kts` 的发布与 Dokka 配置按
-  `ktjs-wrapper-template-` 前缀过滤子模块，新增非发布模块时沿用该约定。
+  `ktjs-aggrid-` 前缀过滤子模块，新增非发布模块时沿用该约定。
 - 根 `package.json` 的 `browserslist` 是构建必需项，不是装饰：Babel 从生成的站点目录往上找到它才有编译
   目标。没有它 `@babel/preset-env` 按 ES5 处理，`async/await` 被翻成 regenerator 状态机，
   `@docusaurus/theme-mermaid` 里 `if (__DOCUSAURUS_MERMAID_LAYOUT_ELK_ENABLED__)` 这个守卫就不再是死代码，
@@ -586,14 +637,13 @@ klibs.io 从 Maven Central 与 GitHub 自动抓取，无需提交元数据文件
 
 ## 模板同步与升级
 
-本文件同时是 [`shijianjs/ktjs-wrapper-template`](https://github.com/shijianjs/ktjs-wrapper-template) 的
-`AGENTS.md`：那份是本仓库的（示例模块 `ktjs-wrapper-template-core` 包 `@vaadin/button`），派生项目把项目名、
-包名、模块名换掉，通用约定原样保留。
+本仓库由 [`shijianjs/ktjs-wrapper-template`](https://github.com/shijianjs/ktjs-wrapper-template) 派生。
+派生时只换了项目名、模块名、包名与上游 npm 包（`ktjs-wrapper-template` / `ktjs-wrapper-template-core`
+→ `ktjs-aggrid`，`@vaadin/button` → `ag-grid-community` + `@ag-grid-community/locale`），通用约定（构建、
+测试、发布、DOM/UI 约定、上游 API 建模）原样保留，之后按需增补 AG Grid 专属内容。
 
-- 在派生项目里总结出对所有 wrapper 项目都成立的约定（构建、测试、发布、DOM/UI 约定、上游 API 建模等）
-  时，主动把它同步回模板仓库：先读模板现状，已有等价内容就跳过，缺失或过时就用通用措辞补上或修正；
-  完成后自动提交并推送模板仓库，不需要逐次征求同意。
-- 只回灌通用部分。项目专属的包清单、目录名、演示内容、版本号留在派生项目。
-- 优先就地修改或扩展现有小节，不要为同一主题新开重复小节。
-- 从模板升级派生项目时仍从模板仓库 `git diff` 取变更后人工 cherry-pick，不要用派生项目的其他文件
-  反向覆盖模板。
+- 在本仓库总结出对所有 wrapper 项目都成立的约定时，主动同步回模板仓库：先读模板现状，已有等价内容就
+  跳过，缺失或过时就用通用措辞补上或修正；完成后自动提交并推送模板仓库，不需要逐次征求同意。
+- 只回灌通用部分。AG Grid 生成器、统计数字、目录名、演示内容、版本号留在本仓库。
+- 从模板取新约定时用模板仓库的 `git diff` 人工 cherry-pick，不要用本仓库文件反向覆盖模板。
+- 模板的「派生新项目」说明仍在模板仓库的 README 与站点里；本仓库不再维护那份清单，也不要把它照搬回来。

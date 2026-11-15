@@ -5,37 +5,55 @@ title: Introduction
 
 # Introduction
 
-`ktjs-wrapper-template` is a starting point for Kotlin/JS wrappers around npm packages, mostly Web
-Components. It is deliberately **not** a scaffold full of placeholders: the repository is a complete
-project that builds, tests in a real browser, documents itself and deploys to GitHub Pages, so copying
-it gives you something that runs on the first `./gradlew build`.
+`ktjs-aggrid` is a Kotlin/JS wrapper around [AG Grid Community](https://www.ag-grid.com/), the
+open-source half of AG Grid: `ag-grid-community` 36.3.0 plus `@ag-grid-community/locale` 36.3.0. The
+Enterprise packages are commercially licensed and are deliberately out of scope, so every declaration
+here describes something you can ship under AG Grid's MIT licence.
 
-## What is in it
+AG Grid is a large package — 774 `.d.ts` files exported through one `main.d.ts`. Hand-writing that
+surface would be a transcription exercise with no way to keep it honest, so the declarations are
+**generated** from the published type definitions and then compiled:
+
+```text
+ag-grid-community/dist/types/src  ──parse──▶  declaration graph
+                                              │
+                            public-name closure (1882 declarations)
+                                              │
+                                        Kotlin emitter
+                                              ▼
+             ktjs-aggrid/src/jsMain/kotlin/…   462 files, one per upstream .d.ts
+```
+
+The result is checked by the compiler, not by hand: `./gradlew :ktjs-aggrid:compileKotlinJs` fails if a
+declaration disagrees with the generated imports, Detekt checks the emitted code, and the browser tests
+load the real `ag-grid-community` package and create a grid.
+
+## What is in the repository
 
 | Part | Role |
 | --- | --- |
-| `ktjs-wrapper-template-core` | the sample wrapper: `@vaadin/button` 25.3.5. One npm package, one Gradle module, one Kotlin package — copy it for the next package |
-| `demo` | a page that creates two `<vaadin-button>` elements through the wrapper; published under `/demo/` |
-| `docs` | this site: Kotlin configuration, Markdown pages, built by the [ktjs-docusaurus](https://github.com/shijianjs/ktjs-docusaurus) Gradle plugin |
-| the rest | npm versions in one `package.json`, per-module `-kt.N` revisions, Detekt, Playwright browser tests, Maven Central release through the hub, Pages workflow |
+| `ktjs-aggrid` | the wrapper: the generated `external` declarations for `ag-grid-community` and its locale package |
+| `scripts/generate-api.py` | the parser and public-surface closure: which upstream declarations are reachable from `main.d.ts` |
+| `scripts/ktjs_emitter.py` | the Kotlin emitter: types, unions, literals, statics, imports |
+| `scripts/regenerate.ps1` | one command that re-runs both against the installed npm packages |
+| `demo` | a page that creates a grid, pages and filters it, adds rows and switches language — published under `/demo/` |
+| `docs` | this site, built by the [ktjs-docusaurus](https://github.com/shijianjs/ktjs-docusaurus) Gradle plugin |
 
-The API reference under `/api/` is Dokka output for the published modules — the same Dokka run that
-`pagesSite` assembles next to this site.
+The API reference under `/api/` is Dokka output for the published module, assembled by `pagesSite`
+next to this site and the demo.
+
+## Scope, in one table
+
+| Included | Excluded |
+| --- | --- |
+| `ag-grid-community` (MIT) | `ag-grid-enterprise`, `ag-grid-charts`, `@ag-grid-enterprise/*` (commercial) |
+| `@ag-grid-community/locale` (MIT) | AG Charts types that AG Grid only references (`AgChart*`, `AgSparklineOptions`) |
+| the `ag-stack` types AG Grid re-exports | runtime behaviour: this wrapper ships no JavaScript of its own |
 
 ## Where to go next
 
-- [Getting started](guide/getting-started.md) — build it, test it, run the dev server.
-- [Deriving a project](guide/deriving-a-project.md) — the rename checklist for turning this into your
-  own wrapper.
-
-## How the pieces fit together
-
-```mermaid
-flowchart TB
-  T["ktjs-wrapper-template<br/>(copy me)"] --> C["core: the sample wrapper"]
-  T --> D["demo: a runnable page"]
-  T --> G["docs: this site"]
-  C --> V["@vaadin/button"]
-  G --> B["ktjs-docusaurus<br/>Gradle plugin"]
-  B --> P["GitHub Pages"]
-```
+- [Getting started](guide/getting-started.md) — build it, test it, run the two dev servers.
+- [Using the wrapper](guide/using-the-wrapper.md) — registration, grid creation, options, transactions,
+  locale and theming.
+- [API coverage](guide/api-coverage.md) — how the declarations are produced, what the 402 fallbacks are,
+  and what the wrapper cannot express.

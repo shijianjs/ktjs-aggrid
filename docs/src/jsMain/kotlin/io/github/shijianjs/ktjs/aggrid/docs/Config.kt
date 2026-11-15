@@ -1,4 +1,4 @@
-package io.github.shijianjs.ktjs.wrappertemplate.docs
+package io.github.shijianjs.ktjs.aggrid.docs
 
 import io.github.shijianjs.ktjs.docusaurus.config.Config
 import io.github.shijianjs.ktjs.docusaurus.config.Directions
@@ -40,7 +40,7 @@ import kotlin.js.JsExport
 import kotlin.js.JsName
 import kotlin.js.unsafeCast
 
-private const val REPOSITORY = "https://github.com/shijianjs/ktjs-wrapper-template"
+private const val REPOSITORY = "https://github.com/shijianjs/ktjs-aggrid"
 
 private const val SITE_URL = "https://shijianjs.github.io"
 
@@ -48,13 +48,13 @@ private const val SITE_URL = "https://shijianjs.github.io"
  * Where the site is served from: the GitHub Pages root. `pagesSite` puts the documentation here, the
  * demo under `/demo/` and the API reference under `/api/`.
  */
-private const val SITE_BASE_URL = "/ktjs-wrapper-template/"
+private const val SITE_BASE_URL = "/ktjs-aggrid/"
 
 /**
  * The two artifacts that sit next to the documentation on the same Pages deployment.
  *
  * Full URLs rather than paths: neither is a route of this Docusaurus build, and Docusaurus reports an
- * absolute internal path (`/ktjs-wrapper-template/demo/`) as a broken link. A full URL is treated as external, and
+ * absolute internal path (`/ktjs-aggrid/demo/`) as a broken link. A full URL is treated as external, and
  * it also survives the locale prefixes, where a relative link would resolve to nothing.
  */
 private const val DEMO_URL = "$SITE_URL$SITE_BASE_URL" + "demo/"
@@ -68,11 +68,11 @@ private const val API_URL = "$SITE_URL$SITE_BASE_URL" + "api/"
  */
 @JsExport
 fun docusaurusConfig(): Config = unsafeJso {
-    title = "ktjs-wrapper-template"
-    tagline = "A Kotlin/JS wrapper project you can copy"
+    title = "ktjs-aggrid"
+    tagline = "Kotlin/JS bindings for AG Grid Community"
     url = SITE_URL
     baseUrl = SITE_BASE_URL
-    favicon = "img/ktjs-wrapper-template-logo.png"
+    favicon = "img/logo.svg"
     trailingSlash = true
     // A broken internal link fails the build instead of shipping a 404 to the Pages site.
     onBrokenLinks = ReportingSeverities.`throw`
@@ -154,11 +154,11 @@ fun docusaurusConfig(): Config = unsafeJso {
 
     themeConfig = unsafeJso<ThemeConfig> {
         navbar = unsafeJso {
-            title = "ktjs-wrapper-template"
+            title = "ktjs-aggrid"
             // The same file the favicon uses, so the navbar logo costs no extra download; `alt` is
             // left out because the title next to it already names the site.
             logo = unsafeJso<NavbarLogo> {
-                src = "img/ktjs-wrapper-template-logo.png"
+                src = "img/logo.svg"
                 width = StringOrDouble(32.0)
                 height = StringOrDouble(32.0)
             }
@@ -241,7 +241,7 @@ fun docusaurusConfig(): Config = unsafeJso {
                         href = REPOSITORY
                     },
                 )
-                copyright = "Built with Docusaurus from a Kotlin/JS project."
+                copyright = "Built with Docusaurus from a Kotlin/JS project. AG Grid is a trademark of AG Grid Software Ltd."
             },
         )
     }
@@ -266,7 +266,11 @@ fun sidebars(): SidebarsConfig = unsafeJso<Sidebars> {
         },
         unsafeJso {
             type = SidebarItemTypes.doc
-            id = "guide/deriving-a-project"
+            id = "guide/using-the-wrapper"
+        },
+        unsafeJso {
+            type = SidebarItemTypes.doc
+            id = "guide/api-coverage"
         },
     )
 }.unsafeCast<SidebarsConfig>()
