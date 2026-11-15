@@ -5,12 +5,19 @@ plugins {
 // The brand image lives with the site's static files and is copied in here, so the demo and the
 // documentation cannot drift apart. `srcDir(task)` only contributes the directory, not the
 // dependency, hence the explicit wiring below.
+// A copy task leaves behind whatever the source no longer has, so a renamed or deleted brand asset
+// would survive in the demo's resources and ship on Pages. Clear the target on every run.
+val brandTarget = layout.buildDirectory.dir("generated/brand")
+
 val brandAssets = tasks.register<Copy>("brandAssets") {
     from(rootProject.file("docs/src/jsMain/resources/static/img")) {
         // Keep the same `img/` layout the site uses, so both pages reference `img/logo.svg`.
         into("img")
     }
-    into(layout.buildDirectory.dir("generated/brand"))
+    into(brandTarget)
+    doFirst {
+        brandTarget.get().asFile.deleteRecursively()
+    }
 }
 
 kotlin {
