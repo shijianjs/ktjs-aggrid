@@ -14,11 +14,11 @@ sidebar_position: 2
 ## 构建、测试、发布
 
 ```bash
-./gradlew build                        # 编译 + Detekt + 浏览器测试
-./gradlew :ktjs-aggrid:jsBrowserTest   # 只跑封装模块的浏览器测试
-./gradlew :demo:e2eTest                # 用 Playwright 跑打包后的示例页
+./gradlew build                         # 编译 + Detekt + 浏览器测试
+./gradlew :ktjs-aggrid:jsBrowserTest    # 只跑封装模块的浏览器测试
+./gradlew :demo:e2eTest                 # 用 Playwright 跑打包后的示例页
 ./gradlew :docs:docusaurusBuild         # 本站
-./gradlew pagesSite                    # 文档在 /，示例在 /demo/，Dokka 在 /api/
+./gradlew pagesSite                     # 文档在 /，示例在 /demo/，Dokka 在 /api/
 ```
 
 `build` 不会跑示例的端到端测试，也不会组装 Pages 站点：两者都需要浏览器，在 CI 中是单独的步骤。
@@ -26,8 +26,8 @@ sidebar_position: 2
 ## 开发
 
 ```bash
-./gradlew :docs:docusaurusStart   # 本站的开发服务器
-./gradlew :demo:jsBrowserRun      # 示例页的开发服务器
+./gradlew :docs:docusaurusStart          # 本站的开发服务器
+./gradlew :demo:jsBrowserDevelopmentRun  # 示例页的开发服务器
 ```
 
 Docusaurus 会监听站点目录，改 Markdown 会热更新；改 Kotlin 需要先
