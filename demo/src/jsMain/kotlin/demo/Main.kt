@@ -179,7 +179,7 @@ private class DemoPage {
         val header = typed<HTMLDivElement>("div").apply { className = ClassName("header") }
         val logo = typed<HTMLImageElement>("img").apply {
             className = ClassName("logo")
-            src = "img/logo.svg"
+            src = "img/ktjs-wrapper-template-logo.png"
             alt = "ktjs-aggrid"
         }
         val titles = typed<HTMLDivElement>("div")

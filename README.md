@@ -1,6 +1,6 @@
 # ktjs-aggrid
 
-<p align="center"><img src="docs/src/jsMain/resources/static/img/logo.svg" width="120" alt="ktjs-aggrid"></p>
+<p align="center"><img src="docs/src/jsMain/resources/static/img/ktjs-wrapper-template-logo.png" width="120" alt="ktjs-aggrid"></p>
 
 Kotlin/JS bindings for [AG Grid Community](https://www.ag-grid.com/) — the open-source half of AG Grid,
 `ag-grid-community` 36.3.0 plus `@ag-grid-community/locale` 36.3.0, both MIT licensed. The Enterprise

@@ -11,7 +11,7 @@ val brandTarget = layout.buildDirectory.dir("generated/brand")
 
 val brandAssets = tasks.register<Copy>("brandAssets") {
     from(rootProject.file("docs/src/jsMain/resources/static/img")) {
-        // Keep the same `img/` layout the site uses, so both pages reference `img/logo.svg`.
+        // Keep the same `img/` layout the site uses, so both pages reference `img/ktjs-wrapper-template-logo.png`.
         into("img")
     }
     into(brandTarget)
