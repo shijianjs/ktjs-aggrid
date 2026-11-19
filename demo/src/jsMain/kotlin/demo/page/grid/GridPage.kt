@@ -1,5 +1,9 @@
 package demo.page.grid
 
+import io.github.shijianjs.ktjs.demo.page.DemoPage
+import io.github.shijianjs.ktjs.dom.webcomponent.defineIfMissing
+import web.components.CustomElementReference
+import web.dom.TagName
 import io.github.shijianjs.ktjs.aggrid.AG_GRID_LOCALE_EN_US
 import io.github.shijianjs.ktjs.aggrid.AG_GRID_LOCALE_ZH_CN
 import io.github.shijianjs.ktjs.aggrid.AllCommunityModule
@@ -18,11 +22,9 @@ import io.github.shijianjs.ktjs.demo.i18n.Lang
 import io.github.shijianjs.ktjs.demo.i18n.Langs
 import io.github.shijianjs.ktjs.demo.i18n.Translations
 import io.github.shijianjs.ktjs.demo.i18n.texts
-import io.github.shijianjs.ktjs.demo.nav.Page
 import io.github.shijianjs.ktjs.demo.page.Readout
 import io.github.shijianjs.ktjs.demo.page.exampleBox
 import io.github.shijianjs.ktjs.demo.page.grid
-import io.github.shijianjs.ktjs.demo.page.newPage
 import io.github.shijianjs.ktjs.demo.page.sectionBlock
 import io.github.shijianjs.ktjs.dom.element.inlineStyle
 import io.github.shijianjs.ktjs.dom.element.invoke
@@ -137,8 +139,7 @@ private val ACTIONS: List<Action> = listOf(
  * page re-hosts nothing. The host only needs a definite height, because the grid sizes its viewport
  * from the element it was created on.
  */
-internal class GridPage : Page {
-    private val page = newPage()
+internal class GridPage : DemoPage() {
 
     private val texts = Binder(gridTexts)
 
@@ -167,7 +168,6 @@ internal class GridPage : Page {
         createButton { setAttribute("data-action", action.id) }
     }
 
-    override val node get() = page
 
     init {
         // AG Grid 33+ is modular: an unregistered capability is simply absent, and nothing complains.
@@ -182,7 +182,7 @@ internal class GridPage : Page {
             exampleBox(null, host),
         )
 
-        page.body.append(section.root)
+        body.append(section.root)
         status.root.setAttribute("data-status", "")
 
         buttons.forEachIndexed { index, button ->
@@ -275,8 +275,8 @@ internal class GridPage : Page {
 
     override fun applyTranslation(lang: Lang) {
         current = gridTexts[lang]
-        page.setTitle(current.title)
-        page.setSummary(current.summary)
+        setTitle(current.title)
+        setSummary(current.summary)
         texts.apply(lang)
         buttons.forEachIndexed { index, button ->
             button.textContent = current.labels.getOrElse(index) { "" }
@@ -291,4 +291,18 @@ internal class GridPage : Page {
         host.replaceChildren()
         createOnceMounted()
     }
+
+    companion object : CustomElementReference<GridPage>(GridPage::class.js) {
+        val NAME: TagName<GridPage> = TagName("aggrid-grid-page")
+
+        fun define() {
+            defineIfMissing(NAME, this)
+        }
+    }
+}
+
+/** Creates a defined `<aggrid-grid-page>`. */
+internal fun newGridPage(): GridPage {
+    GridPage.define()
+    return GridPage.NAME()
 }

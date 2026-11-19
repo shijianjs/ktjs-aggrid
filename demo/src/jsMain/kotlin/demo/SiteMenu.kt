@@ -1,7 +1,7 @@
 package demo
 
-import demo.page.grid.GridPage
-import demo.page.overview.OverviewPage
+import demo.page.grid.newGridPage
+import demo.page.overview.newOverviewPage
 import io.github.shijianjs.ktjs.demo.nav.DemoMenu
 import io.github.shijianjs.ktjs.demo.nav.Entry
 import io.github.shijianjs.ktjs.demo.nav.Group
@@ -29,7 +29,7 @@ internal val EXAMPLES: Group = Group("examples", "lucide:table-2")
  */
 fun siteMenu(): DemoMenu = DemoMenu(
     listOf(
-        Entry("overview", START, "lucide:sparkles") { OverviewPage() },
-        Entry("grid", EXAMPLES, "lucide:table-2") { GridPage() },
+        Entry("overview", START, "lucide:sparkles") { newOverviewPage() },
+        Entry("grid", EXAMPLES, "lucide:table-2") { newGridPage() },
     ),
 )
