@@ -647,3 +647,22 @@ klibs.io 从 Maven Central 与 GitHub 自动抓取，无需提交元数据文件
 - 只回灌通用部分。AG Grid 生成器、统计数字、目录名、演示内容、版本号留在本仓库。
 - 从模板取新约定时用模板仓库的 `git diff` 人工 cherry-pick，不要用本仓库文件反向覆盖模板。
 - 模板的「派生新项目」说明仍在模板仓库的 README 与站点里；本仓库不再维护那份清单，也不要把它照搬回来。
+
+## 演示页：桥到 `ktjs-demo-kit`
+
+`demo/` 的页面骨架由 `ktjs-demo-kit` 提供（`Main.kt` 挂 `DemoLayout`，`SiteMenu.kt` 描述路由，
+`SiteTexts.kt` 声明文案，`page/<组>/` 只有内容），本仓库只补表格这一层。约定与其余 wrapper 仓库相同，
+表格特有的三条：
+
+- **模块要显式注册**：AG Grid 33+ 是模块化的，`moduleRegistryStatics.registerModules(arrayOf<Module>(
+  AllCommunityModule))` 少一行，表格就是空的、而且**没有报错**。
+- **宿主要有确定高度**：`inlineStyle.apply { height = 520.px }`。网格按创建时容器的 `clientWidth` 算列宽、
+  按 `clientHeight` 算视口，太早创建（`clientWidth < 200`）会按 0 宽排版，之后浏览器不会重算，
+  所以创建点在 `createOnceMounted()` 里轮询。
+- **换语言要重建网格**：AG Grid 的 locale 是创建期选项。`setGridOption("localeText", …)` 只到表头，
+  分页栏是独立组件、只在自身选项变化时才重绘；强行开关 `pagination` 会让页码渲染成空白。
+  因此 `applyTranslation` 走 `destroy()` + `createOnceMounted()`：字符串一帧就位，代价是用户已设的排序
+  与筛选丢失；行数据、页大小、列定义是页面自己的状态，不受影响。
+
+页面用宿主属性 `data-grid` / `data-status`（带 `data-rows`、`data-page`、`data-pages`）暴露运行期状态，
+e2e 因此不用猜内部 DOM（只有行数这类上游稳定的东西才用 `.ag-row`）。

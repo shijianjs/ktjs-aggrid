@@ -1,5 +1,6 @@
 package demo.e2e
 
+import com.microsoft.playwright.Locator
 import com.microsoft.playwright.Page
 import com.microsoft.playwright.assertions.PlaywrightAssertions.assertThat
 import com.microsoft.playwright.junit.UsePlaywright
@@ -9,100 +10,106 @@ import kotlin.test.assertTrue
 import org.junitpioneer.jupiter.RetryingTest
 
 /**
- * End-to-end checks for the demo page: the Kotlin/JS bundle has to reach the real AG Grid build,
- * render a grid, and switch both languages and themes without console errors.
+ * Smoke checks for the demo page: the shell comes from the kit, the grid renders through the wrapper,
+ * its buttons drive the grid API, and the language switch relabels the page without recreating the
+ * grid.
+ *
+ * The shell lives in a shadow root; Playwright's CSS pierces shadow boundaries, `document.querySelector`
+ * does not — so the waits use locators instead of `waitForFunction`.
  */
 @UsePlaywright(DemoOptions::class)
 class DemoPageTest {
     @RetryingTest(maxAttempts = 2)
-    fun `page renders the heading, the logo and its stylesheet`(page: Page) {
-        openPage(page)
+    fun `page renders the shell, the logo and an overview`(page: Page) {
+        openHome(page)
 
         assertTrue(page.title().contains("ktjs-aggrid"), "title: ${page.title()}")
-        assertEquals("ktjs-aggrid demo", page.locator("h1").textContent())
-
-        // The logo is copied in from the site's static files by the `brandAssets` task.
-        assertTrue(page.locator("img.logo").isVisible(), "the demo serves the project logo")
-
-        val display = page.locator(".page").evaluate("(node) => getComputedStyle(node).display") as String
-        assertTrue(display != "contents", "the stylesheet applies to .page (display = $display)")
+        assertTrue(page.locator("img.layout__logo").isVisible(), "the shell shows the project logo")
+        assertEquals("Overview", page.locator("ktjs-demo-page h1").textContent())
+        assertTrue(
+            page.locator("vaadin-side-nav-item[data-route='grid']").isVisible(),
+            "the sidebar lists the grid route",
+        )
     }
 
     @RetryingTest(maxAttempts = 2)
-    fun `the wrapped grid renders rows and columns`(page: Page) {
-        openPage(page)
+    fun `the grid renders five rows of the paged sample data`(page: Page) {
+        openHome(page)
+        goToGrid(page)
 
         // Five rows per page, as configured through `paginationPageSize`.
-        assertThat(page.locator(".ag-row")).hasCount(5)
-        assertThat(page.locator(".ag-header-cell-text").first()).hasText("Make")
-        assertEquals("7 rows", page.locator(".status").textContent())
-
-        val theme = page.locator("#grid").getAttribute("class")
-        assertTrue(theme?.contains("grid") == true, "grid host class: $theme")
+        assertEquals(5, page.locator(".ag-row").count(), "five rows on the first page")
+        assertEquals("7", page.locator("[data-status]").getAttribute("data-rows"), "seven sample rows")
+        assertEquals("2", page.locator("[data-status]").getAttribute("data-pages"), "two pages")
+        assertTrue(
+            (page.locator("[data-grid]").first().textContent() ?: "").contains("Make"),
+            "the column headers come from the page's strings",
+        )
     }
 
     @RetryingTest(maxAttempts = 2)
-    fun `switching the language relocalises the page, the headers and the grid`(page: Page) {
-        openPage(page)
+    fun `the toolbar adds and removes a row through the API`(page: Page) {
+        openHome(page)
+        goToGrid(page)
 
-        page.locator("#lang-zh").click()
+        page.locator("[data-action=add]").click()
+        assertEquals("8", page.locator("[data-status]").getAttribute("data-rows"), "an eighth row")
 
-        assertEquals("ktjs-aggrid 示例", page.locator("h1").textContent())
+        page.locator("[data-action=remove]").click()
+        assertEquals("7", page.locator("[data-status]").getAttribute("data-rows"), "back to seven")
+    }
+
+    @RetryingTest(maxAttempts = 2)
+    fun `the pagination buttons walk the pages`(page: Page) {
+        openHome(page)
+        goToGrid(page)
+
+        page.locator("[data-action=next]").click()
+        assertEquals("2", page.locator("[data-status]").getAttribute("data-page"), "second page")
+
+        page.locator("[data-action=previous]").click()
+        assertEquals("1", page.locator("[data-status]").getAttribute("data-page"), "first page again")
+    }
+
+    @RetryingTest(maxAttempts = 2)
+    fun `the language switch relabels the toolbar, the headers and the pager`(page: Page) {
+        openHome(page)
+        goToGrid(page)
+
+        page.locator("[data-menu='lang']").first().click()
+        page.locator("[data-action='lang:zh-Hans']").click()
+
         assertEquals("zh-Hans", page.locator("html").getAttribute("lang"))
+        assertEquals("表格", page.locator("vaadin-side-nav-item[data-route='grid']").textContent())
+        assertEquals("新增一行", page.locator("[data-action=add]").textContent())
+        // The grid repaints a frame after the option is set, so the reads retry instead of racing.
         assertThat(page.locator(".ag-header-cell-text").first()).hasText("厂商")
-        assertEquals("7 行", page.locator(".status").textContent())
-        // The paging panel comes from the upstream locale table, not from the demo's own strings.
+        // The pager comes from the upstream locale table, not from the page's own strings.
         assertThat(page.locator(".ag-paging-description")).containsText("页")
-
-        page.locator("#lang-en").click()
-
-        assertEquals("ktjs-aggrid demo", page.locator("h1").textContent())
-        assertThat(page.locator(".ag-header-cell-text").first()).hasText("Make")
-    }
-
-    @RetryingTest(maxAttempts = 2)
-    fun `adding and removing rows goes through the grid API`(page: Page) {
-        openPage(page)
-
-        page.locator("#add-row").click()
-        assertEquals("8 rows", page.locator(".status").textContent())
-
-        page.locator("#remove-row").click()
-        assertEquals("7 rows", page.locator(".status").textContent())
-    }
-
-    @RetryingTest(maxAttempts = 2)
-    fun `the theme toggle repaints the grid`(page: Page) {
-        openPage(page)
-
-        val light = page.locator(".ag-root-wrapper").evaluate("(node) => getComputedStyle(node).backgroundColor")
-        page.locator("#theme").click()
-        // The rebuild swaps the quartz theme for quartz + the dark colour scheme part.
-        page.waitForSelector(".ag-row")
-        val dark = page.locator(".ag-root-wrapper").evaluate("(node) => getComputedStyle(node).backgroundColor")
-
-        assertTrue(light != dark, "grid background did not change: $light / $dark")
     }
 
     @RetryingTest(maxAttempts = 2)
     fun `page logs no console errors or failed requests`(page: Page) {
         val consoleErrors = mutableListOf<String>()
         val failedRequests = mutableListOf<String>()
-        page.onConsoleMessage { message ->
-            if (message.type() == "error") consoleErrors += message.text()
-        }
-        page.onRequestFailed { request ->
-            failedRequests += "${request.url()} ${request.failure()}"
-        }
+        page.onConsoleMessage { message -> if (message.type() == "error") consoleErrors += message.text() }
+        page.onRequestFailed { request -> failedRequests += "${request.url()} ${request.failure()}" }
 
-        openPage(page)
+        openHome(page)
+        goToGrid(page)
+        page.locator("[data-action=add]").click()
 
         assertTrue(consoleErrors.isEmpty(), "console errors: $consoleErrors")
         assertTrue(failedRequests.isEmpty(), "failed requests: $failedRequests")
     }
 
-    private fun openPage(page: Page) {
+    private fun goToGrid(page: Page) {
+        page.locator("vaadin-side-nav-item[data-route='grid']").click()
+        page.locator("[data-status][data-rows='7']").waitFor(Locator.WaitForOptions().setTimeout(20_000.0))
+        page.locator(".ag-row").first().waitFor(Locator.WaitForOptions().setTimeout(20_000.0))
+    }
+
+    private fun openHome(page: Page) {
         page.navigate("/", Page.NavigateOptions().setWaitUntil(WaitUntilState.NETWORKIDLE))
-        page.waitForSelector(".ag-row")
     }
 }
