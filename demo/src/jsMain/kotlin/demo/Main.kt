@@ -34,7 +34,7 @@ fun main() {
             docsUrl = DOCS_URL,
             apiUrl = API_URL,
             sourceUrl = SOURCE_URL,
-            logoSrc = "img/ktjs-wrapper-template-logo.png",
+            logoSrc = "img/ktjs-aggrid-logo.png",
         ),
     )
 }

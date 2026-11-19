@@ -39,7 +39,7 @@ Kotlin/JS wrapper，同时覆盖 `@ag-grid-community/locale`（同一个版本�
   `ktjs-client/ktjs-docusaurus-kit-browser.js`，`docs/build.gradle.kts` 用 `extractKitBundle` 从 klib
   解出来交给插件放到 `static/ktjs-client/`，再由 `ClientModule.kt` 在 hydrate 之后按 locale 的
   `baseUrl` 加载。Node 会读配置文件，所以这个 bundle 绝不能进 `docs` 的 Kotlin 依赖图。
-  Logo 只有一份（`docs/src/jsMain/resources/static/img/ktjs-wrapper-template-logo.png`），demo 用 `brandAssets` 任务拷进自己的
+  Logo 只有一份（`docs/src/jsMain/resources/static/img/ktjs-aggrid-logo.png`），demo 用 `brandAssets` 任务拷进自己的
   资源；三处引用它的地方是 `Config.kt`、`demo/src/jsMain/resources/index.html` 与
   `demo/src/jsMain/kotlin/demo/Main.kt`。
 

@@ -1,6 +1,6 @@
 # ktjs-aggrid
 
-<p align="center"><img src="docs/src/jsMain/resources/static/img/ktjs-wrapper-template-logo.png" width="120" alt="ktjs-aggrid"></p>
+<p align="center"><img src="docs/src/jsMain/resources/static/img/ktjs-aggrid-logo.png" width="120" alt="ktjs-aggrid"></p>
 
 [AG Grid Community](https://www.ag-grid.com/) 的 Kotlin/JS 绑定——AG Grid 的开源部分：`ag-grid-community`
 36.3.0 以及 `@ag-grid-community/locale` 36.3.0，二者都是 MIT 许可。Enterprise 系列是商业授权，不在范围内：

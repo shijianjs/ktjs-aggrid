@@ -72,7 +72,7 @@ fun docusaurusConfig(): Config = unsafeJso {
     tagline = "Kotlin/JS bindings for AG Grid Community"
     url = SITE_URL
     baseUrl = SITE_BASE_URL
-    favicon = "img/ktjs-wrapper-template-logo.png"
+    favicon = "img/ktjs-aggrid-logo.png"
     trailingSlash = true
     // A broken internal link fails the build instead of shipping a 404 to the Pages site.
     onBrokenLinks = ReportingSeverities.`throw`
@@ -158,7 +158,7 @@ fun docusaurusConfig(): Config = unsafeJso {
             // The same file the favicon uses, so the navbar logo costs no extra download; `alt` is
             // left out because the title next to it already names the site.
             logo = unsafeJso<NavbarLogo> {
-                src = "img/ktjs-wrapper-template-logo.png"
+                src = "img/ktjs-aggrid-logo.png"
                 width = StringOrDouble(32.0)
                 height = StringOrDouble(32.0)
             }
