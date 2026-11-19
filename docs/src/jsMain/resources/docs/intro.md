@@ -14,14 +14,13 @@ AG Grid is a large package — 774 `.d.ts` files exported through one `main.d.ts
 surface would be a transcription exercise with no way to keep it honest, so the declarations are
 **generated** from the published type definitions and then compiled:
 
-```text
-ag-grid-community/dist/types/src  ──parse──▶  declaration graph
-                                              │
-                            public-name closure (1882 declarations)
-                                              │
-                                        Kotlin emitter
-                                              ▼
-             ktjs-aggrid/src/jsMain/kotlin/…   462 files, one per upstream .d.ts
+```mermaid
+flowchart LR
+  SRC["ag-grid-community/dist/types/src<br/>774 .d.ts files behind main.d.ts"] -->|"parse"| GRAPH["declaration graph"]
+  GRAPH -->|"public-name closure<br/>1882 declarations"| EMIT["Kotlin emitter"]
+  EMIT -->|"one file per upstream .d.ts"| KOT["ktjs-aggrid/src/jsMain/kotlin/…<br/>462 files"]
+  KOT -->|"compileKotlinJs + Detekt"| CHECK["checked by the compiler"]
+  CHECK -->|"real npm package in a browser test"| GRID["a grid that renders"]
 ```
 
 The result is checked by the compiler, not by hand: `./gradlew :ktjs-aggrid:compileKotlinJs` fails if a

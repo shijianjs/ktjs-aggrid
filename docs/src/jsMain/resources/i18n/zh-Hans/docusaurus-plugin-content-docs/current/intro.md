@@ -12,14 +12,13 @@ title: 简介
 AG Grid 的声明体量很大：774 个 `.d.ts` 文件通过一个 `main.d.ts` 对外导出。手写这份 API 面只能是
 抄写练习，而且无法保证与上游一致，所以这里的声明是**生成的**：从发布的类型定义解析，再编译验证。
 
-```text
-ag-grid-community/dist/types/src  ──解析──▶  声明图
-                                             │
-                            公开名闭包（1882 个声明）
-                                             │
-                                    Kotlin 发射器
-                                             ▼
-             ktjs-aggrid/src/jsMain/kotlin/…   462 个文件，每个对应一个上游 .d.ts
+```mermaid
+flowchart LR
+  SRC["ag-grid-community/dist/types/src<br/>main.d.ts 背后的 774 个 .d.ts"] -->|"解析"| GRAPH["声明图"]
+  GRAPH -->|"公开名闭包<br/>1882 个声明"| EMIT["Kotlin 发射器"]
+  EMIT -->|"每个上游 .d.ts 一个文件"| KOT["ktjs-aggrid/src/jsMain/kotlin/…<br/>462 个文件"]
+  KOT -->|"compileKotlinJs + Detekt"| CHECK["由编译器检查"]
+  CHECK -->|"浏览器测试加载真实 npm 包"| GRID["真的渲染出一张表"]
 ```
 
 结果由编译器检查，而不是靠人眼：声明与生成的 import 不一致时
