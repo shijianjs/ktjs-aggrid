@@ -107,7 +107,7 @@ internal class OverviewPage : DemoPage() {
         addLink(texts.bind(anchor("", SOURCE_URL, external = true), { it.sourceLink }))
 
         val purpose = sectionBlock()
-        texts.bind(purpose.title, { it.purposeHeading })
+        texts.bind(purpose.heading, { it.purposeHeading })
         // One bound <li> per bullet, so a language switch rewrites each line in place.
         val bullets = HtmlTagName.ul {
             List(3) { index -> texts.bind(+HtmlTagName.li()) { it.bullets.getOrNull(index).orEmpty() } }
@@ -115,14 +115,14 @@ internal class OverviewPage : DemoPage() {
         purpose.body.append(texts.bind(paragraph(), { it.body }), bullets)
 
         val options = sectionBlock()
-        texts.bind(options.title, { it.optionsHeading })
+        texts.bind(options.heading, { it.optionsHeading })
         options.body.append(
             texts.bind(paragraph(), { it.optionsBody }),
             row(codeText("moduleRegistryStatics.registerModules(arrayOf<Module>(AllCommunityModule))")),
         )
 
         val next = sectionBlock()
-        texts.bind(next.title, { it.nextHeading })
+        texts.bind(next.heading, { it.nextHeading })
         next.body.append(texts.bind(paragraph(), { it.nextBody }))
 
         body.append(purpose.root, options.root, next.root)
