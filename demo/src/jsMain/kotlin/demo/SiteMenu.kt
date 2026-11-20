@@ -1,10 +1,11 @@
 package demo
 
-import demo.page.grid.newGridPage
-import demo.page.overview.newOverviewPage
+import demo.page.grid.GridPage
+import demo.page.overview.OverviewPage
 import io.github.shijianjs.ktjs.demo.nav.DemoMenu
 import io.github.shijianjs.ktjs.demo.nav.Entry
 import io.github.shijianjs.ktjs.demo.nav.Group
+import io.github.shijianjs.ktjs.dom.element.invoke
 
 /** The AG Grid version this demo is built against; the navbar shows it under the site name. */
 const val SITE_VERSION: String = "36.3.0"
@@ -29,7 +30,7 @@ internal val EXAMPLES: Group = Group("examples", "lucide:table-2")
  */
 fun siteMenu(): DemoMenu = DemoMenu(
     listOf(
-        Entry("overview", START, "lucide:sparkles") { newOverviewPage() },
-        Entry("grid", EXAMPLES, "lucide:table-2") { newGridPage() },
+        Entry("overview", START, "lucide:sparkles") { OverviewPage.NAME() },
+        Entry("grid", EXAMPLES, "lucide:table-2") { GridPage.NAME() },
     ),
 )

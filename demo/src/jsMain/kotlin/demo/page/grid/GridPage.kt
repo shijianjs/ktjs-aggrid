@@ -1,9 +1,6 @@
 package demo.page.grid
 
 import io.github.shijianjs.ktjs.demo.page.DemoPage
-import io.github.shijianjs.ktjs.dom.webcomponent.defineIfMissing
-import web.components.CustomElementReference
-import web.dom.TagName
 import io.github.shijianjs.ktjs.aggrid.AG_GRID_LOCALE_EN_US
 import io.github.shijianjs.ktjs.aggrid.AG_GRID_LOCALE_ZH_CN
 import io.github.shijianjs.ktjs.aggrid.AllCommunityModule
@@ -22,12 +19,13 @@ import io.github.shijianjs.ktjs.demo.i18n.Lang
 import io.github.shijianjs.ktjs.demo.i18n.Langs
 import io.github.shijianjs.ktjs.demo.i18n.Translations
 import io.github.shijianjs.ktjs.demo.i18n.texts
-import io.github.shijianjs.ktjs.demo.page.newReadout
-import io.github.shijianjs.ktjs.demo.page.exampleBox
-import io.github.shijianjs.ktjs.demo.page.grid
-import io.github.shijianjs.ktjs.demo.page.sectionBlock
+import io.github.shijianjs.ktjs.demo.page.Blocks.exampleBox
+import io.github.shijianjs.ktjs.demo.page.Grid
+import io.github.shijianjs.ktjs.demo.page.SectionBlock
+import io.github.shijianjs.ktjs.demo.page.Readout
 import io.github.shijianjs.ktjs.dom.element.inlineStyle
 import io.github.shijianjs.ktjs.dom.element.invoke
+import io.github.shijianjs.ktjs.dom.webcomponent.CustomElementReferenceAdapter
 import io.github.shijianjs.ktjs.vaadin.button.ButtonElement
 import io.github.shijianjs.ktjs.vaadin.button.createButton
 import js.objects.unsafeJso
@@ -161,7 +159,7 @@ internal class GridPage : DemoPage() {
     }
 
     /** Rows and page: one line under the toolbar, marked for the e2e suite. */
-    private val status = newReadout()
+    private val status = Readout.NAME { show() }
 
     /** One button per action, each tagged so the end-to-end suite can address it by name. */
     private val buttons: List<ButtonElement> = ACTIONS.map { action ->
@@ -173,11 +171,11 @@ internal class GridPage : DemoPage() {
         // AG Grid 33+ is modular: an unregistered capability is simply absent, and nothing complains.
         moduleRegistryStatics.registerModules(arrayOf<Module>(AllCommunityModule))
 
-        val section = sectionBlock()
+        val section = SectionBlock.NAME { show() }
         texts.bind(section.heading, { it.gridHeading })
         texts.bind(section.hint, { it.hint })
         section.body.append(
-            grid(minColumnWidth = 150, *buttons.toTypedArray()),
+            Grid.NAME { show(150); add(*buttons.toTypedArray()) },
             status.root,
             exampleBox(null, host),
         )
@@ -292,17 +290,5 @@ internal class GridPage : DemoPage() {
         createOnceMounted()
     }
 
-    companion object : CustomElementReference<GridPage>(GridPage::class.js) {
-        val NAME: TagName<GridPage> = TagName("aggrid-grid-page")
-
-        fun define() {
-            defineIfMissing(NAME, this)
-        }
-    }
-}
-
-/** Creates a defined `<aggrid-grid-page>`. */
-internal fun newGridPage(): GridPage {
-    GridPage.define()
-    return GridPage.NAME()
+    companion object : CustomElementReferenceAdapter<GridPage>(GridPage::class.js, "aggrid-grid-page")
 }
