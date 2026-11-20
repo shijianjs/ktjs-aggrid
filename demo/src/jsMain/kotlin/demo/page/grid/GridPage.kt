@@ -63,23 +63,6 @@ private fun initialRows(): MutableList<Car> = mutableListOf(
     car("Mazda", "MX-5", 31000.0, 4.5),
 )
 
-/** Every string this page shows, in one language. */
-private class GridTexts(
-    val title: String,
-    val summary: String,
-    val gridHeading: String,
-    val hint: String,
-    /** The toolbar labels, in the order of [ACTIONS]. */
-    val labels: List<String>,
-    val columnMake: String,
-    val columnModel: String,
-    val columnPrice: String,
-    val columnRating: String,
-    val rows: String,
-    val page: String,
-    val locale: LocaleText,
-)
-
 private val gridEnglish: GridTexts = GridTexts(
     title = "Grid",
     summary = "The real AG Grid Community engine behind the wrapper: sort a column by its header, filter it " +
@@ -118,9 +101,6 @@ private val gridTexts: Translations<GridTexts> = texts(
     Langs.EN to gridEnglish,
     Langs.ZH_HANS to gridChinese,
 )
-
-/** One toolbar button: the command it runs on the grid. */
-private class Action(val id: String, val run: (GridPage, GridApi) -> Unit)
 
 private val ACTIONS: List<Action> = listOf(
     Action("add") { page, api -> page.addRow(api) },
@@ -165,7 +145,6 @@ internal class GridPage : DemoPage() {
     private val buttons: List<ButtonElement> = ACTIONS.map { action ->
         createButton { setAttribute("data-action", action.id) }
     }
-
 
     init {
         // AG Grid 33+ is modular: an unregistered capability is simply absent, and nothing complains.
