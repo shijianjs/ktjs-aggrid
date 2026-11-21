@@ -25,7 +25,7 @@ class DemoPageTest {
 
         assertTrue(page.title().contains("ktjs-aggrid"), "title: ${page.title()}")
         assertTrue(page.locator("img.layout__logo").isVisible(), "the shell shows the project logo")
-        assertEquals("Overview", page.locator("ktjs-demo-page h1").textContent())
+        assertEquals("Overview", page.locator("aggrid-overview-page h1").textContent())
         assertTrue(
             page.locator("vaadin-side-nav-item[data-route='grid']").isVisible(),
             "the sidebar lists the grid route",
