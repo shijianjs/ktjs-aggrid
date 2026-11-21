@@ -48,6 +48,16 @@ Docusaurus watches the site directory, so Markdown edits reload; Kotlin changes 
 | `docs/src/jsMain/resources` | Markdown pages, MDX landing page, CSS, translations |
 | `docs/development/` | the generated [API surface report](https://github.com/shijianjs/ktjs-aggrid/blob/main/docs/development/api-surface-report.md) |
 
+```mermaid
+flowchart LR
+    NPM["package.json: the only place npm versions live<br/>wrapper-revisions.properties: the -kt.N revision"] --> GEN["./scripts/regenerate.ps1<br/>parse → emit → format"]
+    GEN --> KT["ktjs-aggrid/src/jsMain/kotlin<br/>generated, never edited by hand"]
+    KT --> COMPILE["compileKotlinJs + Detekt"]
+    COMPILE --> TEST["jsBrowserTest drives the real ag-grid-community"]
+    TEST --> DEMO[":demo:e2eTest drives the bundled page"]
+    DEMO --> SITE["pagesSite: docs at /, demo at /demo/, Dokka at /api/"]
+```
+
 ## The lock file
 
 npm dependencies are resolved once for the whole workspace and pinned in

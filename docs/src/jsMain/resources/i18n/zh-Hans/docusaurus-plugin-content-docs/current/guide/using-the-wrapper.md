@@ -45,6 +45,16 @@ val api = createGrid(hostElement, gridOptions(), null)
 `CsvExportModule` 等）也是同一个调用，换数组内容即可，这是压缩产物体积的办法。`Array<Module>` 的类型参数
 必须显式写出——Kotlin 数组不协变，而各模块声明的是它们各自更窄的上游类型。
 
+```mermaid
+flowchart LR
+    MOD["moduleRegistryStatics.registerModules(AllCommunityModule)"] --> GRID["createGrid(host, options, null)"]
+    OPT["unsafeJso<GridOptions> { columnDefs; rowData; … }"] --> GRID
+    THEME["theme = ThemeOrString(themeQuartz)"] --> GRID
+    LOCALE["localeText = AG_GRID_LOCALE_ZH_CN"] --> GRID
+    GRID --> API["GridApi：getDisplayedRowCount / setGridOption / applyTransaction"]
+    API --> DESTROY["destroy()：页面重建表格前必须调"]
+```
+
 ## 选项就是普通对象
 
 `GridOptions` 和 `ColDef` 都是 `external interface`，用 `unsafeJso` 构造——没有 builder，没有

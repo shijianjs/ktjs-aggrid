@@ -47,6 +47,16 @@ Docusaurus 会监听站点目录，改 Markdown 会热更新；改 Kotlin 需要
 | `docs/src/jsMain/resources` | Markdown 页面、MDX 首页、CSS、翻译 |
 | `docs/development/` | 生成的 [API 面报告](https://github.com/shijianjs/ktjs-aggrid/blob/main/docs/development/api-surface-report.md) |
 
+```mermaid
+flowchart LR
+    NPM["package.json：npm 版本唯一声明处<br/>wrapper-revisions.properties：-kt.N 修订号"] --> GEN["./scripts/regenerate.ps1<br/>解析 → 生成 → 格式化"]
+    GEN --> KT["ktjs-aggrid/src/jsMain/kotlin<br/>生成产物，不手改"]
+    KT --> COMPILE["compileKotlinJs + Detekt"]
+    COMPILE --> TEST["jsBrowserTest 驱动真的 ag-grid-community"]
+    TEST --> DEMO[":demo:e2eTest 驱动打包后的页面"]
+    DEMO --> SITE["pagesSite：文档在 /、demo 在 /demo、Dokka 在 /api"]
+```
+
 ## lock 文件
 
 整个工作区的 npm 依赖只解析一次，固定在 `kotlin-js-store/package-lock.json`。新增或升级 npm 依赖、

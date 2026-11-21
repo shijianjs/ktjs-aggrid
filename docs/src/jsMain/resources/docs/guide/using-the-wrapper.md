@@ -48,6 +48,16 @@ val api = createGrid(hostElement, gridOptions(), null)
 keep a bundle small. The `Array<Module>` type argument is explicit on purpose — Kotlin arrays are not
 covariant, and the modules are declared as their narrower upstream types.
 
+```mermaid
+flowchart LR
+    MOD["moduleRegistryStatics.registerModules(AllCommunityModule)"] --> GRID["createGrid(host, options, null)"]
+    OPT["unsafeJso<GridOptions> { columnDefs; rowData; … }"] --> GRID
+    THEME["theme = ThemeOrString(themeQuartz)"] --> GRID
+    LOCALE["localeText = AG_GRID_LOCALE_ZH_CN"] --> GRID
+    GRID --> API["GridApi: getDisplayedRowCount / setGridOption / applyTransaction"]
+    API --> DESTROY["destroy() before the page recreates the grid"]
+```
+
 ## Options are plain objects
 
 `GridOptions` and `ColDef` are `external interface`s, so they are built with `unsafeJso` — no builders,
