@@ -25,7 +25,6 @@ import io.github.shijianjs.ktjs.demo.page.SectionBlock
 import io.github.shijianjs.ktjs.demo.page.Readout
 import io.github.shijianjs.ktjs.dom.element.inlineStyle
 import io.github.shijianjs.ktjs.dom.element.invoke
-import io.github.shijianjs.ktjs.dom.webcomponent.CustomElementReferenceAdapter
 import io.github.shijianjs.ktjs.vaadin.button.ButtonElement
 import io.github.shijianjs.ktjs.vaadin.button.createButton
 import js.objects.unsafeJso
@@ -269,5 +268,5 @@ internal class GridPage : DemoPage() {
         createOnceMounted()
     }
 
-    companion object : CustomElementReferenceAdapter<GridPage>(GridPage::class.js, "aggrid-grid-page")
+    companion object : GridPageDefaultReference()
 }
